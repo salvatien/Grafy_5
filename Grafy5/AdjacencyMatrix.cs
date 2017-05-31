@@ -101,6 +101,7 @@ namespace Grafy5
             var x_m = width / 2;    //x middle
             var y_m = height / 2;   //y middle
 
+
             for(int i=1; i<Layers.GetLength(0)-1; i++)
             {
                 Line myLine = new Line();
