@@ -179,6 +179,18 @@ namespace Grafy5
                     }
 
                 }
+                int counter = 0;
+                while(counter < 2*N)
+                {
+                    int WhereFrom = r.Next(0, v - 1);
+                    int WhereTo = r.Next(1, v);
+                    if (WhereFrom == WhereTo) continue;
+                    if (adjacencyMatrix.AdjacencyArray[WhereFrom, WhereTo] == 0)
+                    {
+                        adjacencyMatrix.AdjacencyArray[WhereFrom, WhereTo] = r.Next(1, 11);
+                        counter++;
+                    }
+                }
 
                 adjacencyMatrix.Display(Layers, SumOfPreviousLayers, StackPanelForDisplayingAdjacencyMatrix, MyCanvas, StackPanelForDisplayingIncidenceMatrix, StackPanelForDisplayingAdjacencylist);
             }

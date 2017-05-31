@@ -88,8 +88,8 @@ namespace Grafy5
             double [,] Positions = new double[num_v, 2];
 
             Rectangle myRectangle = new Rectangle();
-            myRectangle.Height = 200;
-            myRectangle.Width = 400;
+            myRectangle.Height = 300;
+            myRectangle.Width = 500;
             myRectangle.Fill = Brushes.Transparent;
             myRectangle.StrokeThickness = 2;
             myRectangle.Stroke = Brushes.LightGray;
