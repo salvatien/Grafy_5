@@ -180,7 +180,8 @@ namespace Grafy5
 
                 }
                 int counter = 0;
-                while(counter < 2*N)
+                int safety = 0;
+                while(counter < 2*N && safety < 3000)
                 {
                     int WhereFrom = r.Next(0, v - 1);
                     int WhereTo = r.Next(1, v);
@@ -190,6 +191,7 @@ namespace Grafy5
                         adjacencyMatrix.AdjacencyArray[WhereFrom, WhereTo] = r.Next(1, 11);
                         counter++;
                     }
+                    safety++;
                 }
 
                 adjacencyMatrix.Display(Layers, SumOfPreviousLayers, StackPanelForDisplayingAdjacencyMatrix, MyCanvas, StackPanelForDisplayingIncidenceMatrix, StackPanelForDisplayingAdjacencylist);
