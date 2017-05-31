@@ -1,0 +1,60 @@
+﻿<Window x:Class="Grafy5.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Grafy5"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="700" Width="1004">
+  <Canvas>
+    <Canvas Name="MyCanvas" Background="LightCyan" Height="425" Width="700" Canvas.Left="3" Canvas.Top="10">
+
+    </Canvas>
+    <ScrollViewer HorizontalAlignment="Right" Canvas.Left="708" Canvas.Top="10" Width="279" Height="656" Background="AliceBlue" VerticalScrollBarVisibility="Hidden">
+      <StackPanel Name="MyStackPanel" HorizontalAlignment="Right" Canvas.Left="708" Canvas.Top="10" Width="279" Background="AliceBlue">
+        <Button Content="Losuj sieć przepływową" HorizontalAlignment="Center" VerticalAlignment="Top" Width="279" Height="40" Margin="0,0,-0.333,0" Click="Button_Click" />
+        <StackPanel Orientation="Horizontal" Margin="18,10,9.667,0">
+          <TextBlock Text="Z ilości warstw (N):" Width="184"/>
+          <TextBox x:Name="How_Many_Layers" Width="66" Height="20" PreviewTextInput="NumbersOnly_PreviewTextInput" Text="3"/>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" Margin="18,0,9.667,30" Height="25">
+          <TextBlock Text="Prawdopodobieństwo krawędzi:" Width="184" VerticalAlignment="Center"/>
+          <TextBox x:Name="Probability_Of_Edge_Occurence" Width="66" Height="20" Text="30"/>
+        </StackPanel>
+
+      
+        
+
+        <Button Name="ComputeShortestPath" Content="Wyszukaj najkrótsze ścieżki&#xA;(Algorytm Bellmana-Forda)" Height="40" Width="279" HorizontalContentAlignment="Center" Margin="0, 30, 0, 0" Click="ComputeShortestPath_Click" />
+        <StackPanel Orientation="Horizontal" Margin="18,10,9.667,0" Height="25">
+          <TextBlock Text="Od wierzchołka:" Width="184" VerticalAlignment="Center"/>
+          <TextBox x:Name="Search_Paths_From_TextBox" Width="66" Height="20" Text="1" PreviewTextInput="NumbersOnly_PreviewTextInput"/>
+        </StackPanel>
+
+        
+        
+        <StackPanel Name="StackPanelWithConnections" />
+
+      </StackPanel>
+    </ScrollViewer>
+
+    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Bottom" Width="700" Height="226" Canvas.Top="440" Canvas.Left="3">
+      <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" Width="230" HorizontalAlignment="Left">
+        <StackPanel Name="StackPanelForDisplayingAdjacencyMatrix" Background="LightGoldenrodYellow" Width="230">
+
+        </StackPanel>
+      </ScrollViewer>
+      <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" Width="230" HorizontalAlignment="Left" Margin="10,0,10,0" Height="226" VerticalAlignment="Bottom">
+        <StackPanel Name="StackPanelForDisplayingIncidenceMatrix" Background="LightGoldenrodYellow" Width="230">
+          <TextBlock Name="StronglyConnectedComponents" Margin="20, 10, 20, 20" Background="LightGoldenrodYellow" />
+        </StackPanel>
+      </ScrollViewer>
+      <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" Width="230" HorizontalAlignment="Left">
+        <StackPanel Name="StackPanelForDisplayingAdjacencylist" Background="LightGoldenrodYellow" Width="230" >
+          <TextBlock Name="ShortestPathsTextBlock" Margin="10, 10, 10, 0" Background="LightGoldenrodYellow"/>
+        </StackPanel>
+      </ScrollViewer>
+    </StackPanel>
+
+  </Canvas>
+</Window>
