@@ -16,6 +16,7 @@ namespace Grafy5
         // Brzydkoszybka enkapsulacja
         public int[,] AdjacencyArray;
         public int[,] AdjacencyArrayWeights;
+        public double[,] Positions;
 
         // Konstruktor
         public AdjacencyMatrix(int n)
@@ -85,7 +86,7 @@ namespace Grafy5
 
             var width = MyCanvas.Width;
             var height = MyCanvas.Height;
-            double [,] Positions = new double[num_v, 2];
+            Positions = new double[num_v, 2];
 
             Rectangle myRectangle = new Rectangle();
             myRectangle.Height = 300;
@@ -203,7 +204,7 @@ namespace Grafy5
                         // drawing arrow line
                         Point point11 = new Point(Positions[i, 0], Positions[i,1]);
                         Point point12 = new Point(Positions[j, 0], Positions[j, 1]);
-                        DrawArrow(point11, point12, AdjacencyArray[i, j], MyCanvas);
+                        DrawArrow(point11, point12, AdjacencyArray[i, j], MyCanvas, Brushes.Black, Brushes.PaleVioletRed);
                     }
                 }
 
@@ -211,7 +212,7 @@ namespace Grafy5
             }
         }
 
-        private void DrawArrow(Point p1, Point p2, int weight, Canvas MyCanvas)
+        private void DrawArrow(Point p1, Point p2, int weight, Canvas MyCanvas, Brush lineColor, Brush numberColor)
         {
             GeometryGroup lineGroup = new GeometryGroup();
             double theta = Math.Atan2((p2.Y - p1.Y), (p2.X - p1.X)) * 180 / Math.PI;
@@ -252,12 +253,12 @@ namespace Grafy5
             Path path = new Path();
             path.Data = lineGroup;
             path.StrokeThickness = 2;
-            path.Stroke = path.Fill = Brushes.Black;
+            path.Stroke = path.Fill = lineColor;//Brushes.Black;
 
             MyCanvas.Children.Add(path);
 
             Label label = new Label();
-            label.Foreground = Brushes.PaleVioletRed;
+            label.Foreground = numberColor;//Brushes.PaleVioletRed;
             label.Content = weight.ToString();
             label.FontWeight = FontWeights.Bold;
             label.FontSize = 15;
@@ -297,359 +298,77 @@ namespace Grafy5
                         DFSprint(u, visited, graph, SCC, currCompList);
         }
 
-        public List<List<int>> KosarajuAlgorithm(TextBlock SCC)
+        public int FordFurkelson(int v, int [,] graph, Canvas MyCanvas)
         {
-            SCC.Text = "";
-
-            int n = AdjacencyArray.GetLength(0);
-
-            // Kopiujemy macierz sąsiedztwa do nowego grafu
-            int[,] graph = new int[AdjacencyArray.GetLength(0), AdjacencyArray.GetLength(1)];
-            for (int i = 0; i < AdjacencyArray.GetLength(0); i++)
-                for (int j = 0; j < AdjacencyArray.GetLength(1); j++)
-                    graph[i, j] = AdjacencyArray[i, j];
-
-            bool[] visited = new bool[n];   // domyślnie wszystko jest ustawione na false
-
-            Stack<int> S = new Stack<int>();
-
-            for (int v = 0; v < n; v++)
-                if (visited[v] == false)
-                    DFStack(v, visited, S, graph, SCC);
-
-            TransposeGraph(graph, n);
-
-            for (int i = 0; i < n; i++)
-                visited[i] = false;
-
-            List<List<int>> listOfSSC = new List<List<int>>();
-
-            int cn = 0;     // licznik silnie spójnych składowych
-            while (S.Count != 0)
+            Queue<int>myQ = new Queue<int>();
+            int[,] Capacities = new int[v, v];
+            int[,] Flows = new int[v, v];
+            int[] Previous = new int[v];
+            int[] PathsMinCapacity = new int[v];
+            int MaxFlow = 0;
+            for (int i = 0; i < v; i++)
             {
-                int v = S.Peek();
-                S.Pop();
-
-                if (visited[v] != true)
+                for (int j = 0; j < v; j++)
                 {
-                    cn++;
-                    List<int> currCompList = new List<int>();
-                    //
-                    // Pisz SCC, cn, :
-                    SCC.Text += "SCC " + cn.ToString() + ": ";
-                    //
-                    DFSprint(v, visited, graph, SCC, currCompList);
-                    SCC.Text += "\n";
-                    listOfSSC.Add(currCompList);
+                    Capacities[i, j] = graph[i, j];
+                    Flows[i,j] = 0;
                 }
             }
-            return listOfSSC;
-        }
-
-        private void TransposeGraph(int[,] graph, int n)
-        {
-            int[,] tmpGraph = new int[n, n];
-            for (int i = 0; i < n; i++)
-                for (int j = 0; j < n; j++)
-                    tmpGraph[i, j] = graph[i, j];
-
-            for (int i = 0; i < n; i++)
-                for (int j = 0; j < n; j++)
-                    graph[i, j] = tmpGraph[j, i];
-        }
-
-        //Stwórz silnie spójny digraf
-        internal void RandomStronglyConnectedDigraph(TextBlock SCC, int num_of_e, int probability)
-        {
-            int n = AdjacencyArray.GetLength(0);
-
-            Random r = new Random();
-            int i_to_draw = r.Next(0, n);
-            int j_to_draw = r.Next(0, n);
-            while (num_of_e > 0)
+            bool whileStop = false;
+            while(true)
             {
-                //int probability_curr = r.Next(0, 100);
-                // if (probability_curr < probability)
-                //  {
-                while ((AdjacencyArray[i_to_draw, j_to_draw] != 0) || (i_to_draw == j_to_draw))
+                Previous[0] = -100; //zrodlo
+                for (int i = 1; i < v; i++)
+                    Previous[i] = -1; //-1 bedzie oznaczac ze w tym wierzcholku jeszcze nie bylismy (w tej sciezce)
+                for (int i=0; i<v; i++)
+                    PathsMinCapacity[i] = 1000000; //przepustowosc sciezek, idac przez krawedz o mniejszej przepustowosci bedziemy to zmniejszac
+                while (myQ.Count != 0) myQ.Dequeue();
+                myQ.Enqueue(0);
+                whileStop = false;
+                while(myQ.Count != 0)
                 {
-                    i_to_draw = r.Next(0, n);
-                    j_to_draw = r.Next(0, n);
-                }
-                AdjacencyArray[i_to_draw, j_to_draw] = 1;
-                num_of_e--;
-                // }
-            }
-
-
-            //=================================
-            List<List<int>> listOfSCC = KosarajuAlgorithm(SCC);
-
-            for (int i = 0; i < listOfSCC.Count - 1; i++)
-            {
-                AdjacencyArray[listOfSCC[i][0], listOfSCC[i + 1][0]] = 1;
-                AdjacencyArray[listOfSCC[i + 1][listOfSCC[i + 1].Count - 1], listOfSCC[i][listOfSCC[i].Count - 1]] = 1;
-            }
-            KosarajuAlgorithm(SCC);
-
-
-            //=================================
-            // losowanie wag na łukach
-            for (int i = 0; i < n; i++)
-            {
-                for (int j = 0; j < n; j++)
-                {
-                    if (AdjacencyArray[i, j] == 1)
-                        //=================================================ZMIANAAAAA
-                        AdjacencyArrayWeights[i, j] = r.Next(-5, 11);
-                    //AdjacencyArrayWeights[i, j] = r.Next(1, 11);
-                }
-            }
-        }
-
-
-        //========================================================
-        // Algorytm Bellmana-Forda
-        //========================================================
-
-        internal bool BellmanFordAlorithm(TextBlock SP, int v, ref Int32[] d)
-        {
-            int n = AdjacencyArray.GetLength(0);
-
-            // Kopiujemy macierz sąsiedztwa do nowego grafu
-            int[,] graph = new int[AdjacencyArray.GetLength(0), AdjacencyArray.GetLength(1)];
-            for (int i = 0; i < AdjacencyArray.GetLength(0); i++)
-                for (int j = 0; j < AdjacencyArray.GetLength(1); j++)
-                    graph[i, j] = AdjacencyArray[i, j];
-
-            //elementy pomocnicze
-            bool test;
-
-            //utworzenie n-elementowej tablicy d i wypełnienie jej wartościami maksymalnymi
-            //oraz n-elementowej tablicy p i wypełnienie jej wartościami -1
-            d = new Int32[n];
-            Int32[] p = new Int32[n];
-            for (int i = 0; i < n; i++)
-            {
-                d[i] = Int32.MaxValue;
-                p[i] = -1;
-            }
-            d[v] = 0;
-            for (int i = 1; i <= n - 1; i++)
-            {
-                test = true;
-                for (int x = 0; x < n; x++)
-                {
-                    for (int y = 0; y < n; y++)
+                    int fromQueue = myQ.Dequeue();
+                    for(int vert = 1; vert<v; vert++)
                     {
-                        if (graph[x, y] == 1)
+                        int edgeCapacity = Capacities[fromQueue, vert] - Flows[fromQueue, vert];
+                        if(edgeCapacity!=0 && (Previous[vert] == -1))
                         {
-                            if ((d[y] > d[x] + AdjacencyArrayWeights[x, y]) && d[x] != Int32.MaxValue)
+                            Previous[vert] = fromQueue;
+                            PathsMinCapacity[vert] = Math.Min(PathsMinCapacity[fromQueue], edgeCapacity);
+                            if (vert == (v - 1))
                             {
-                                test = false;
-                                d[y] = d[x] + AdjacencyArrayWeights[x, y];
-                                p[y] = x;
+                                MaxFlow += PathsMinCapacity[v - 1];
+                                int update = v - 1;
+                                while (update != 0)
+                                {
+                                    int temp = Previous[update];
+                                    Flows[temp, update] += PathsMinCapacity[v - 1];
+                                    Flows[update, temp] -= PathsMinCapacity[v - 1];
+                                    update = temp;
+                                }
+                                whileStop = true;
+                                break;
                             }
+                            myQ.Enqueue(vert);
                         }
                     }
+                    if (whileStop == true) break;
                 }
-                if (test == true)
-                    return true;
+                if (whileStop == false) break;
             }
-            for (int x = 0; x < n; x++)
+            for(int i=0; i<v; i++)
             {
-                for (int y = 0; y < n; y++)
+                for(int j=0; j<v; j++)
                 {
-                    if (graph[x, y] == 1)
+                    if(Flows[i,j]>0)
                     {
-                        if (d[y] > d[x] + AdjacencyArrayWeights[x, y])
-                            return false;
+                        Point point11 = new Point(Positions[i, 0], Positions[i, 1]);
+                        Point point12 = new Point(Positions[j, 0], Positions[j, 1]);
+                        DrawArrow(point11, point12, Flows[i, j], MyCanvas, Brushes.Blue, Brushes.CadetBlue);
                     }
                 }
             }
-
-            return true;
-        }
-
-        public void WriteShortestPaths(Int32[] d, TextBlock SP, int v)
-        {
-            SP.Text = "Najkrótsze ścieżki od wierzchołka " + (v + 1).ToString() + ":\n ";
-            for (int i = 0; i < d.Length; i++)
-            {
-                SP.Text += " do " + (i + 1).ToString() + " : " + d[i] + "\n ";
-            }
-        }
-
-
-        /*
-        //========================================================
-        // Algorytm Dijkstry
-        //========================================================
-
-        internal void DijkstraAlgorithm(TextBlock SP, int v)
-        {
-            int n = AdjacencyArray.GetLength(0);
-
-            // Kopiujemy macierz sąsiedztwa do nowego grafu
-            int[,] graph = new int[AdjacencyArray.GetLength(0), AdjacencyArray.GetLength(1)];
-            for (int i = 0; i < AdjacencyArray.GetLength(0); i++)
-                for (int j = 0; j < AdjacencyArray.GetLength(1); j++)
-                    graph[i, j] = AdjacencyArray[i, j];
-
-            List<int> S = new List<int>();
-
-            List<int> Q = new List<int>();
-            for (int i = 0; i < n; i++)
-                Q.Add(i);
-
-            //tablica na koszty dojścia inicjalizowana największymi wartościami
-            Int32[] d = new Int32[n];
-            //tablica poprzedników na ścieżkach inizjalizowana -1
-            Int32[] p = new Int32[n];
-            //boole
-            bool[] sptSet = new bool[n];
-
-            for (int i = 0; i < n; i++)
-            {
-                d[i] = Int32.MaxValue;
-                p[i] = -1;
-                sptSet[i] = false;
-            }
-            d[v] = 0;   //koszt do samego siebie
-
-            /*
-            while(Q.Count > 0)
-            {
-                //var u = Q.IndexOf(Q.Min());
-                //S.Add(Q[u]);
-                //Q.RemoveAt(u);
-                int u = -1;
-                int min_d = Int32.MaxValue;
-                for(int i = 0; i < n; i++)
-                    if(d[i] < min_d)
-                    {
-                        u = i;
-                        min_d = d[i];
-                    }
-
-                Q.RemoveAt(u);
-                sptSet[u] = true;
-
-                for (int w = 0; w < n; w++)
-                    if (graph[u, w] == 1)
-                    {
-                        //if (Q.FindIndex(item => item == w) >= 0)
-                        bool flag = false;
-                        for (int i = 0; i < Q.Count; i++)
-                            if (Q[i] == w)
-                                flag = true;
-                        if (flag == true)
-                        {
-                            if ((d[w] > d[u] + AdjacencyArrayWeights[u, w]) && (d[u] != Int32.MaxValue) && (sptSet[w] == false))
-                            {
-                                d[w] = d[u] + AdjacencyArrayWeights[u, w];
-                                p[w] = u;
-                            }
-                        }
-                    }
-            }
-            
-
-            for (int x = 0; x < n; x++)
-            {
-                for (int y = 0; y < n; y++)
-                {
-                    if (graph[x, y] == 1)
-                    {
-                        if ((d[y] > d[x] + AdjacencyArrayWeights[x, y]) && d[x] != Int32.MaxValue)
-                        {
-                            d[y] = d[x] + AdjacencyArrayWeights[x, y];
-                            p[y] = x;
-                        }
-                    }
-                }
-            }
-
-            WriteShortestPaths(d, SP, v);
-        }
-        */
-
-        //========================================================
-        // Algorytm Johnsona
-        //========================================================
-        internal void JohnsonAlgorithm(TextBlock SP)
-        {
-            // miejsce na nową macierz
-            // n - 1 to indeks nowego wierzchołka
-            int n = AdjacencyArray.GetLength(0) + 1;
-
-            // Kopiujemy macierz sąsiedztwa do nowego grafu większego o jeden wierzchołek
-            int[,] graph = new int[n, n];
-            //Kopiujemy macierz wag do nowej macierzy dla nowego grafu
-            int[,] graphWeights = new int[n, n];
-
-            for (int i = 0; i < n - 1; i++)
-                for (int j = 0; j < n - 1; j++)
-                {
-                    graph[i, j] = AdjacencyArray[i, j];
-                    graphWeights[i, j] = AdjacencyArrayWeights[i, j];
-                }
-
-            //dokładamy połączenia od nowego wierzchołka do każdego istniejącego wierzchołka
-            //dodajemy również zerowe wagi połączeń
-            for (int i = 0; i < n; i++)
-            {
-                graph[n - 1, i] = 1;
-                graph[i, n - 1] = 0;
-                graphWeights[n - 1, i] = graphWeights[i, n - 1] = 0;
-            }
-
-            //Aktualizujemy macierz w klasie oraz jej wagi - wierzchołek jest teraz dodany
-            //jest połączony ze wszystkimi istniejącymi wcześniej wierzchołkami
-            //i jest pomiędzy każdą taką parą połączenie o wadze 0
-            AdjacencyArray = graph;
-            AdjacencyArrayWeights = graphWeights;
-
-            //Algorytmem Bellmana-Forda szukamy najkrószych ścieżek między dodanym wierzchołkiem, a resztą
-            Int32[] d = new Int32[0];
-            if (BellmanFordAlorithm(SP, n - 1, ref d))
-            {
-                //Teraz przewagowywuwywuwyjemy graf tak, by pozbyć się ujemnych wag
-                //nie zmieniając wartości najkrótszych ścieżek
-                for (int u = 0; u < n; u++)
-                    for (int v = 0; v < n; v++)
-                        AdjacencyArrayWeights[u, v] = AdjacencyArrayWeights[u, v] + d[u] - d[v];
-
-                //Teraz usuwamy początkowo dodany węzeł
-                //czyli ponownie wielkość będzie taka, jak na początku
-                n = AdjacencyArray.GetLength(0) - 1;
-
-                graph = new int[n, n];
-                graphWeights = new int[n, n];
-
-                for (int i = 0; i < n; i++)
-                    for (int j = 0; j < n; j++)
-                    {
-                        graph[i, j] = AdjacencyArray[i, j];
-                        graphWeights[i, j] = AdjacencyArrayWeights[i, j];
-                    }
-
-                AdjacencyArray = graph;
-                AdjacencyArrayWeights = graphWeights;
-
-                //Aktualizujemy teraz najkrótsze ścieżki algorytmem Dijkstry dla każdego wierzchołka
-                //który jest uparty i nie daje się zaimplementować, 
-                //więc posłużymy się bardziej procesożernym bratem Bellmanem-Fordem
-                //UWAGA!!! Tak jest w oryginalnym algorytmie, ale tutaj nie potrzebujemy tego wywoływać;
-                //          wystarczy, że użytkownik może raz jeszcze sobie odpalić algorytm
-                //for (int i = 0; i < n; i++) ;
-                // BellmanFordAlorithm(SP, i, ref d);
-            }
-            else
-            {
-                SP.Text = "Wykryto ujemny cykl.";
-            }
-
+            return MaxFlow;
 
         }
 

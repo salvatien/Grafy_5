@@ -25,10 +25,10 @@
       
         
 
-        <Button Name="ComputeShortestPath" Content="Wyszukaj najkrótsze ścieżki&#xA;(Algorytm Bellmana-Forda)" Height="40" Width="279" HorizontalContentAlignment="Center" Margin="0, 30, 0, 0" Click="ComputeShortestPath_Click" />
+        <Button Name="ComputeMaxFlow" Content="Wyszukaj największy przepływ w sieci (FFA)" Height="40" Width="279" HorizontalContentAlignment="Center" Margin="0, 30, 0, 0" Click="ComputeShortestPath_Click" />
         <StackPanel Orientation="Horizontal" Margin="18,10,9.667,0" Height="25">
-          <TextBlock Text="Od wierzchołka:" Width="184" VerticalAlignment="Center"/>
-          <TextBox x:Name="Search_Paths_From_TextBox" Width="66" Height="20" Text="1" PreviewTextInput="NumbersOnly_PreviewTextInput"/>
+          <TextBlock Text="Maksymalny przepływ:" Width="184" VerticalAlignment="Center"/>
+          <TextBox x:Name="MaxFlowTextBox" Width="66" Height="20" Text="0" PreviewTextInput="NumbersOnly_PreviewTextInput"/>
         </StackPanel>
 
         
