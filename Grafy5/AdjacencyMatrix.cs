@@ -87,7 +87,7 @@ namespace Grafy5
             var width = MyCanvas.Width;
             var height = MyCanvas.Height;
             Positions = new double[num_v, 2];
-
+            
             Rectangle myRectangle = new Rectangle();
             myRectangle.Height = 300;
             myRectangle.Width = 500;
@@ -95,28 +95,42 @@ namespace Grafy5
             myRectangle.StrokeThickness = 2;
             myRectangle.Stroke = Brushes.LightGray;
             Canvas.SetLeft(myRectangle, width / 2 - 200);
-            Canvas.SetTop(myRectangle, height / 2 - 100);
+            Canvas.SetTop(myRectangle, height / 2 - 150);
             MyCanvas.Children.Add(myRectangle);
-
+            
 
             var x_m = width / 2;    //x middle
             var y_m = height / 2;   //y middle
 
-
+            
             for(int i=1; i<Layers.GetLength(0)-1; i++)
             {
                 Line myLine = new Line();
                 myLine.Stroke = Brushes.LightGray;
-                myLine.X1 = width / 2 - 200 +  myRectangle.Width / (Layers.GetLength(0)-1) * i;
-                myLine.X2 = width / 2 - 200 + myRectangle.Width / (Layers.GetLength(0)-1) * i;
-                myLine.Y1 = height / 2 - 100;
-                myLine.Y2 = height / 2 - 100 + myRectangle.Height;
+                myLine.X1 = width / 2 - 200 +  myRectangle.Width / (Layers.GetLength(0)-1) * i -120 / (Layers.GetLength(0) - 1);
+                myLine.X2 = width / 2 - 200 + myRectangle.Width / (Layers.GetLength(0)-1) * i -120 / (Layers.GetLength(0) - 1);
+                myLine.Y1 = height / 2 - 150;
+                myLine.Y2 = height / 2 - 150 + myRectangle.Height;
                 myLine.HorizontalAlignment = HorizontalAlignment.Left;
                 myLine.VerticalAlignment = VerticalAlignment.Center;
                 myLine.StrokeThickness = 2;
                 MyCanvas.Children.Add(myLine);
+                Line myLine2 = new Line();
+                myLine2.Stroke = Brushes.LightGray;
+                myLine2.X1 = width / 2 - 200 + myRectangle.Width / (Layers.GetLength(0) - 1) * i + 120 / (Layers.GetLength(0) - 1);
+                myLine2.X2 = width / 2 - 200 + myRectangle.Width / (Layers.GetLength(0) - 1) * i + 120 / (Layers.GetLength(0) - 1);
+                myLine2.Y1 = height / 2 - 150;
+                myLine2.Y2 = height / 2 - 150 + myRectangle.Height;
+                myLine2.HorizontalAlignment = HorizontalAlignment.Left;
+                myLine2.VerticalAlignment = VerticalAlignment.Center;
+                myLine2.StrokeThickness = 2;
+                MyCanvas.Children.Add(myLine2);
+                TextBlock myTextBlock = new TextBlock();
+                myTextBlock.Text = i.ToString();
+                myTextBlock.Margin = new Thickness((myLine.X1 + myLine2.X1)/2 , myLine.Y1, (myLine.X1 + myLine2.X1) / 2 + 10, myLine.Y1+10);
+                MyCanvas.Children.Add(myTextBlock);
             }
-
+            
             var x_source = width / 2 - 200;
             var y_source = height / 2 - 100 + myRectangle.Height/2;
 
@@ -163,13 +177,13 @@ namespace Grafy5
             Positions[num_v -1 , 0] = x_sink;
             Positions[num_v-1 , 1] = y_sink;
             MyCanvas.Children.Add(SinkNumber);
-
+            Random rand = new Random();
             for (int i = 1; i < Layers.GetLength(0) - 1; i++)
             {
                 for (int j = SumOfPreviousLayers[i]; j < SumOfPreviousLayers[i] + Layers[i]; j++)
                 {
-                    var x = width / 2 - 200 + myRectangle.Width / (Layers.GetLength(0) - 1) * i;
-                    var y = height / 2 - 100 + (j - SumOfPreviousLayers[i]) * myRectangle.Height / Layers[i];
+                    var x = width / 2 - 200 + myRectangle.Width / (Layers.GetLength(0) - 1) * i + rand.Next(-100/ (Layers.GetLength(0) - 1), 100/ (Layers.GetLength(0) - 1));
+                    var y = height / 2 - 100 + (j - SumOfPreviousLayers[i]) * myRectangle.Height / Layers[i] + rand.Next(-100 / (Layers.GetLength(0) - 1), 100 / (Layers.GetLength(0)-1));
                     Ellipse smallPoint = new Ellipse();
                     smallPoint.Height = 8;
                     smallPoint.Width = 8;
