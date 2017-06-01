@@ -204,7 +204,7 @@ namespace Grafy5
                         // drawing arrow line
                         Point point11 = new Point(Positions[i, 0], Positions[i,1]);
                         Point point12 = new Point(Positions[j, 0], Positions[j, 1]);
-                        DrawArrow(point11, point12, AdjacencyArray[i, j], MyCanvas, Brushes.Black, Brushes.PaleVioletRed);
+                        DrawArrow(point11, point12, AdjacencyArray[i, j], MyCanvas, Brushes.Black, Brushes.PaleVioletRed, 0);
                     }
                 }
 
@@ -212,7 +212,7 @@ namespace Grafy5
             }
         }
 
-        private void DrawArrow(Point p1, Point p2, int weight, Canvas MyCanvas, Brush lineColor, Brush numberColor)
+        private void DrawArrow(Point p1, Point p2, int weight, Canvas MyCanvas, Brush lineColor, Brush numberColor, double offset)
         {
             GeometryGroup lineGroup = new GeometryGroup();
             double theta = Math.Atan2((p2.Y - p1.Y), (p2.X - p1.X)) * 180 / Math.PI;
@@ -262,41 +262,12 @@ namespace Grafy5
             label.Content = weight.ToString();
             label.FontWeight = FontWeights.Bold;
             label.FontSize = 15;
-            Canvas.SetLeft(label, p.X);
-            Canvas.SetTop(label, p.Y);
+            Canvas.SetLeft(label, p.X + offset);
+            Canvas.SetTop(label, p.Y + offset);
             MyCanvas.Children.Add(label);
         }
 
-        //========================================================
-        // Algorytm Kosaraju
-        //========================================================
-
-        // Algorytm przejścia DFStack
-        private void DFStack(int v, bool[] visited, Stack<int> S, int[,] graph, TextBlock SCC)
-        {
-            visited[v] = true;
-            for (int u = 0; u < graph.GetLength(0); u++)
-                if (graph[v, u] == 1)
-                    if (visited[u] == false)
-                        DFStack(u, visited, S, graph, SCC);
-            S.Push(v);
-            //SCC.Text += "\nPushed";
-        }
-
-        // Algorytm przejścia DFSprint
-        private void DFSprint(int v, bool[] visited, int[,] graph, TextBlock SCC, List<int> currCompList)
-        {
-            visited[v] = true;
-            //
-            // Pisz v
-            SCC.Text += (v + 1).ToString() + " ";
-            currCompList.Add(v);
-            //
-            for (int u = 0; u < graph.GetLength(0); u++)
-                if (graph[v, u] == 1)
-                    if (visited[u] == false)
-                        DFSprint(u, visited, graph, SCC, currCompList);
-        }
+        
 
         public int FordFurkelson(int v, int [,] graph, Canvas MyCanvas)
         {
@@ -364,7 +335,7 @@ namespace Grafy5
                     {
                         Point point11 = new Point(Positions[i, 0], Positions[i, 1]);
                         Point point12 = new Point(Positions[j, 0], Positions[j, 1]);
-                        DrawArrow(point11, point12, Flows[i, j], MyCanvas, Brushes.Blue, Brushes.CadetBlue);
+                        DrawArrow(point11, point12, Flows[i, j], MyCanvas, Brushes.Blue, Brushes.DeepSkyBlue, -7);
                     }
                 }
             }
