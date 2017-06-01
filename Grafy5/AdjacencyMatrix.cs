@@ -276,7 +276,7 @@ namespace Grafy5
             label.Content = weight.ToString();
             label.FontWeight = FontWeights.Bold;
             label.FontSize = 15;
-            Canvas.SetLeft(label, p.X + offset);
+            Canvas.SetLeft(label, p.X);
             Canvas.SetTop(label, p.Y + offset);
             MyCanvas.Children.Add(label);
         }
@@ -349,10 +349,25 @@ namespace Grafy5
                     {
                         Point point11 = new Point(Positions[i, 0], Positions[i, 1]);
                         Point point12 = new Point(Positions[j, 0], Positions[j, 1]);
-                        DrawArrow(point11, point12, Flows[i, j], MyCanvas, Brushes.Blue, Brushes.DeepSkyBlue, -7);
+                        DrawArrow(point11, point12, Flows[i, j], MyCanvas, Brushes.Blue, Brushes.Transparent, -12);
                     }
                 }
             }
+
+            for(int i=0; i<v; i++)
+            {
+                for(int j=0; j<v; j++)
+                {
+                    if(AdjacencyArray[i,j]>0)
+                    {
+                        Point point11 = new Point(Positions[i, 0], Positions[i, 1]);
+                        Point point12 = new Point(Positions[j, 0], Positions[j, 1]);
+                        DrawArrow(point11, point12, AdjacencyArray[i, j], MyCanvas, Brushes.Transparent, Brushes.PaleVioletRed, 0);
+                        if(Flows[i,j]>0 ) DrawArrow(point11, point12, Flows[i, j], MyCanvas, Brushes.Transparent, Brushes.OrangeRed, -12);
+                    }
+                }
+            }
+
             return MaxFlow;
 
         }
