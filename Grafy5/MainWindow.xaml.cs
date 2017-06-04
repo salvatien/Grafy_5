@@ -212,9 +212,13 @@ namespace Grafy5
 
         private void ComputeShortestPath_Click(object sender, RoutedEventArgs e)
         {
-            int maxFlow = adjacencyMatrix.FordFurkelson(adjacencyMatrix.AdjacencyArray.GetLength(0), adjacencyMatrix.AdjacencyArray, MyCanvas);
+            int [,] Flows = new int[adjacencyMatrix.AdjacencyArray.GetLength(0), adjacencyMatrix.AdjacencyArray.GetLength(1)];
+            int maxFlow = adjacencyMatrix.FordFurkelson(adjacencyMatrix.AdjacencyArray.GetLength(0), adjacencyMatrix.AdjacencyArray, MyCanvas, ref Flows);
             string showMaxFlow = maxFlow.ToString();
             MaxFlowTextBox.Text = showMaxFlow;
+
         }
+
+
     }
 }

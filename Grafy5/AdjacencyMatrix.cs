@@ -283,11 +283,11 @@ namespace Grafy5
 
         
 
-        public int FordFurkelson(int v, int [,] graph, Canvas MyCanvas)
+        public int FordFurkelson(int v, int [,] graph, Canvas MyCanvas, ref int [,] Flows)
         {
             Queue<int>myQ = new Queue<int>();
             int[,] Capacities = new int[v, v];
-            int[,] Flows = new int[v, v];
+            Flows = new int[v, v];
             int[] Previous = new int[v];
             int[] PathsMinCapacity = new int[v];
             int MaxFlow = 0;
